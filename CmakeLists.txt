@@ -1,0 +1,9 @@
+cmake_minimum_required(VERSION 3.17.3)
+
+project(RoutePlanner)
+
+set(CMAKE_CXX_STANDARD 11)
+
+include_directories(include)
+
+add_executable(RoutePlanner src/main.cpp src/grid.cpp src/row.cpp src/input.cpp src/build_path.cpp)
