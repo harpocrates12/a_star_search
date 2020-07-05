@@ -7,7 +7,7 @@
 
 class Grid {
     public:
-        Grid(int row_count, int column_count);
+        Grid(std::string file_path);
         bool hasCoordinates(int* coordinates);
         Node* getNode(int* coordinates);
         void Set(char value, int* coordinates);

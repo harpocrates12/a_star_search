@@ -9,7 +9,7 @@ class Row {
     public:
         friend class Grid;
 
-        Row(int y_coordinate, int column_count);
+        Row(int y_coordinate, std::string line);
 
     private:
         std::vector<Node> _nodes;

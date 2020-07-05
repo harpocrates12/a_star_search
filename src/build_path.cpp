@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 
 #include "build_path.h"
 #include "grid.h"
@@ -29,10 +30,10 @@ std::vector<Node*> Neighbors(Node* node, Grid &grid) {
         int move[2] = {mv[0], mv[1]};
         // if move left is on grid
         if (grid.hasCoordinates(move)) {
-            // get left_node
-            Node* left_node = grid.getNode(move);
-            // add left_node to neighbor_nodes
-            neighbor_nodes.emplace_back(left_node);
+            // get neighbor_node
+            Node* neighbor_node = grid.getNode(move);
+            // add neighbor_node to neighbor_nodes
+            neighbor_nodes.emplace_back(neighbor_node);
         }
     }
 
@@ -49,22 +50,26 @@ void ExpandList(Grid &grid, std::vector<Node*> &open_list, Node* current_node, N
             // if node has been visited
             // skip iteration
             continue;
-        } else if (node_ptr->getValue() == 'x') {
+        }
+        if (node_ptr->getValue() == "x") {
             // if node is obstacle
             // skip iteration
             continue;
-        } else {
-            // calculate and set weight
-            node_ptr->Weight(
-                current_node->Weight() + 1
-            );
-            // calculate and set Heuristic
-            node_ptr->Heuristic(
-                Heuristic(node_ptr, target_node)
-            );
-            // add to open_list
-            open_list.emplace_back(node_ptr);
         }
+
+        // set parent node
+        node_ptr->setParent(current_node);
+
+        // calculate and set weight
+        node_ptr->Weight(
+            current_node->Weight() + 1
+        );
+        // calculate and set Heuristic
+        node_ptr->Heuristic(
+            Heuristic(node_ptr, target_node)
+        );
+        // add to open_list
+        open_list.emplace_back(node_ptr);
     }
 
     // Sort the open list by aggregate weight (distance + heuristic); descending
@@ -73,18 +78,30 @@ void ExpandList(Grid &grid, std::vector<Node*> &open_list, Node* current_node, N
     });
 }
 
-#include <thread>
+void RenderPath(Node* node, Grid &grid) {
+    node = node->getParent();
+
+    while (node->getParent() != nullptr) {
+        Node* parent_node = node->getParent();
+        node->setValue("\u25A3");
+        node = parent_node;
+    }
+}
 
 void BuildPath(Grid &grid, int* start_point, int* target_point) {
+    Node* start_node = grid.getNode(start_point);
+    start_node->setValue("\u25EF");
+
     Node* target_node = grid.getNode(target_point);
-    target_node->setValue('2');
+    target_node->setValue("\u2691");
 
     // start an open list; initialize with start_point
-    Node* start_node = grid.getNode(start_point);
     std::vector<Node*> open_list = { start_node };
 
     while (!open_list.empty()){
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // uncomment this to pace the visualisation
+        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
         // get the last node from the vector
         // this node holds the lowest aggregate weight (see ExpandList(...) func)
         Node* current_node = open_list.back();
@@ -92,12 +109,15 @@ void BuildPath(Grid &grid, int* start_point, int* target_point) {
 
         // if node is target node -> break;
         if (current_node == target_node) {
-            break;
+            RenderPath(current_node, grid);
+            system("clear");
+            grid.Print();
+            return;
         } else {
             // if node is not target node
             // mark node as visited
             current_node->SetVisited();
-            current_node->setValue('1');
+            current_node->setValue("\u25CC");
             // clear the terminal & print the grid
             system("clear");
             grid.Print();

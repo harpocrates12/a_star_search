@@ -1,9 +1,15 @@
 #include <vector>
+#include <sstream>
 
 #include "row.h"
 
-Row::Row(int y_coordinate, int column_count) {
-    for (int i = 0; i < column_count; i++) {
-        _nodes.emplace_back(i, y_coordinate, '0');
+Row::Row(int y_coordinate, std::string line) {
+    std::istringstream line_stream(line);
+    std::string token;
+    int x_coordinate = 0;
+
+    while  (line_stream >> token) {
+        _nodes.emplace_back(x_coordinate, y_coordinate, token);
+        x_coordinate++;
     }
 }

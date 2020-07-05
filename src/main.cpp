@@ -5,7 +5,7 @@
 #include "build_path.h"
 
 int main(){
-    Grid grid(15, 15);
+    Grid grid("../grid.txt");
 
     grid.Print();
 
@@ -14,8 +14,6 @@ int main(){
 
     InputCoordinates(start_point, target_point);
     BuildPath(grid, start_point, target_point);
-
-    // grid.Print();
 
     return 0;
 }
